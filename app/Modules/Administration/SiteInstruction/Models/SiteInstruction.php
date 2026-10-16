@@ -2,26 +2,60 @@
 
 namespace App\Modules\Administration\SiteInstruction\Models;
 
-use App\Helpers\Helper;
-use App\Models\ContractDocument;
-use App\Models\LogStatus;
-use App\Models\Project;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\ContractDocument;
+use App\Models\LogStatus;
+use App\Models\Project;
+use App\Models\User;
+use App\Modules\CostAndContract\ChangeOrder\Models\ChangeOrder;
+use Carbon\Carbon;
+use App\Helpers\Helper;
 
 class SiteInstruction extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = [
+        'project_id',
+        'cc_contract_document_id',
+        'cc_change_order_id',
+        'log_status_id',
+        'type_of_work_id',
+        'attachment_type_id',
+        'potential_cost_time_id',
+        'received_by_id',
+        'doc_sequence',
+        'doc_project_initial',
+        'issued_date',
+        'refer_to_dwg',
+        'location',
+        'created_by',
+        'created_at',
+        'updated_by',
+        'updated_at',
+        'deleted_by',
+        'deleted_at'
+    ];
+
     protected $table = 'administration_site_instructions';
 
+    public $timestamps = false;
+
     protected $casts = [
-        'issued_date' => 'date',
+        'created_at' => 'datetime'
     ];
+
+    protected function issuedDate(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $value ? Carbon::parse($value)->format('Y-m-d') : null,
+            get: fn ($value) => $value ? Carbon::parse($value)->format('d-M-Y') : null,
+        );
+    }
 
     public function project(): BelongsTo
     {
@@ -31,6 +65,11 @@ class SiteInstruction extends Model
     public function contractDocument(): BelongsTo
     {
         return $this->belongsTo(ContractDocument::class, 'cc_contract_document_id');
+    }
+
+    public function changeOrder(): BelongsTo
+    {
+        return $this->belongsTo(ChangeOrder::class, 'cc_change_order_id');
     }
 
     public function logStatus(): BelongsTo
