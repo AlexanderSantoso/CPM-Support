@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'account_id' => env('ACCOUNT_ID', 2),
+    'project_id' => env('PROJECT_ID', 2),
+
 ];

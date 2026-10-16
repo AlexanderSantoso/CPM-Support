@@ -6,17 +6,13 @@
     <meta name="description" content="" />
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors"/>
     <meta name="generator" content="Astro v5.13.2" />
-    <meta name="theme-color" content="#712cf9" />
     <title>CPM - Support</title>
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/"/>
-    <script src="{{ asset('dist/js/color-modes.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('dist/css/offcanvas-navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('dist/css/custom.css') }}">
   </head>
   <body class="bg-body-tertiary">
-    @include('layouts.toogle-theme')
-
     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
       @include('layouts.menu-list')
     </nav>

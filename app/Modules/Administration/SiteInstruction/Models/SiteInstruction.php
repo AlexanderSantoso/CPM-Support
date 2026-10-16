@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\ContractDocument;
 use App\Models\LogStatus;
 use App\Models\Project;
@@ -52,8 +53,8 @@ class SiteInstruction extends Model
     protected function issuedDate(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => $value ? Carbon::parse($value)->format('Y-m-d') : null,
-            get: fn ($value) => $value ? Carbon::parse($value)->format('d-M-Y') : null,
+            set: fn($value) => $value ? Carbon::parse($value)->format('Y-m-d') : null,
+            get: fn($value) => $value ? Carbon::parse($value)->format('d-M-Y') : null,
         );
     }
 
@@ -107,11 +108,20 @@ class SiteInstruction extends Model
         return $this->hasMany(SiteInstructionItem::class, 'adm_site_instruction_id');
     }
 
+    public function scopeForCurrentTenant(Builder $query, int $accountId, int $projectId): Builder
+    {
+        return $query
+            ->where('project_id', $projectId)
+            ->whereHas('project', function (Builder $q) use ($accountId) {
+                $q->where('account_id', $accountId);
+            });
+    }
+
     protected function siteInstructionNumber(): Attribute
     {
         return Attribute::make(
             get: function () {
-                if (! $this->created_at || ! $this->doc_sequence) {
+                if (!$this->created_at || !$this->doc_sequence) {
                     return null;
                 }
 

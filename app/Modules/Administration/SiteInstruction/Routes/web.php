@@ -6,6 +6,8 @@ use App\Modules\Administration\SiteInstruction\Controllers\SiteInstructionExport
 
 Route::controller(SiteInstructionController::class)->group(function () {
     Route::get('/', 'main')->name('main');
+
+    Route::get('detail/{id}', 'showDetailPage')->name('showDetailPage');
 });
 
 Route::controller(SiteInstructionExportController::class)->group(function () {
