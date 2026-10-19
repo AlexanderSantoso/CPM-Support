@@ -10,19 +10,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Builder;
-use App\Modules\Admin\Company\Models\Company;
-use App\Modules\Admin\Project\Models\Project;
+use App\Models\Company;
+use App\Models\Project;
 use App\Modules\CostAndContract\BudgetPlan\Models\BudgetPlan;
 use App\Modules\CostAndContract\OwnerEstimate\Models\OwnerEstimate;
-use App\Modules\CostAndContract\ContractDocument\Models\ContractDocument;
+use App\Models\ContractDocument;
 use App\Modules\CostAndContract\ChangeOrder\Models\ChangeOrder;
 use App\Modules\CostAndContract\VariationOrder\Models\VariationOrder;
 use App\Modules\CostAndContract\TrackingInvoice\Models\TrackingInvoice;
-use App\Traits\Auditable;
+// use App\Traits\Auditable;
 
 class WorkPackage extends Model
 {
-    use HasFactory, SoftDeletes, Auditable;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',
@@ -113,32 +113,9 @@ class WorkPackage extends Model
     public function scopeWithFinancialSummary(Builder $query): Builder
     {
         return $query
-                ->with('latestContractDocument.vendor')
-                ->withSum('budgetPlans as budget_estimate_total', 'budget_estimate')
-                ->withSum('ownerEstimates as estimated_contract_total', 'estimated_contract')
-                ->withSum('contractDocuments as contract_amount_excl_vat_total', 'contract_amount_excl_vat')
-                ->withSum([
-                    'changeOrders as estimated_variation_change_order_total' => function ($query) {
-                        $query->whereHas('latestActivity', function ($q) {
-                            $q->whereIn('log_status_id', [1, 3, 4]);
-                        });
-                    }
-                ], 'estimated_variation')
-                ->withSum([
-                    'variationOrders as estimated_variation_variation_order_total' => function ($query) {
-                        $query->whereHas('latestActivity', function ($q) {
-                            $q->where('log_status_id', 1);
-                        });
-                    }
-                ], 'approved_variation')
-                ->withSum([
-                    'variationOrders as approved_variation_variation_order_total' => function ($query) {
-                        $query->whereHas('latestActivity', function ($q) {
-                            $q->whereIn('log_status_id', [3, 4]);
-                        });
-                    }
-                ], 'approved_variation')
-                ->withSum('trackingInvoices as invoice_submitted_total', 'invoice_submitted')
-                ->withSum('trackingInvoices as invoice_paid_total', 'invoice_paid');
+            ->withSum('budgetPlans as budget_estimate_total', 'budget_estimate')
+            ->withSum('ownerEstimates as estimated_contract_total', 'estimated_contract')
+            ->withSum('contractDocuments as contract_amount_excl_vat_total', 'contract_amount_excl_vat')
+            ->withSum('variationOrders as approved_variation_total', 'approved_variation');
     }
 }

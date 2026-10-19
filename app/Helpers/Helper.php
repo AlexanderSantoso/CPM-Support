@@ -4,6 +4,16 @@ namespace App\Helpers;
 
 class Helper
 {
+    public static function formatRupiah($value): string
+    {
+        return number_format((float) $value, 0, ',', '.');
+    }
+
+    public static function formatPercentage($value): string
+    {
+        return number_format((float) $value, 2, ',', '.') . '%';
+    }
+
     public static function romanMonth(int $month): string
     {
         return [
