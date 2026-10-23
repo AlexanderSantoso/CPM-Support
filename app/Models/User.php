@@ -12,4 +12,9 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $hidden = ['password', 'remember_token'];
+
+    public function getDisplayNameAttribute(): string
+    {
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? '')) ?: '-';
+    }
 }

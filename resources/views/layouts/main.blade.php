@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('dist/css/offcanvas-navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('dist/css/custom.css') }}">
+    @yield('head')
   </head>
   <body class="bg-body-tertiary">
     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">

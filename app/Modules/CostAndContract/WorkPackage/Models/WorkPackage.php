@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Company;
 use App\Models\Project;
+use App\Models\User;
 use App\Modules\CostAndContract\BudgetPlan\Models\BudgetPlan;
 use App\Modules\CostAndContract\OwnerEstimate\Models\OwnerEstimate;
 use App\Models\ContractDocument;
@@ -42,9 +43,18 @@ class WorkPackage extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'updated_at' => 'datetime',
+    ];
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function project(): BelongsTo
@@ -105,34 +115,57 @@ class WorkPackage extends Model
     {
         return $query
             ->where('project_id', $projectId)
-            ->whereHas('project', function (Builder $q) use ($accountId) {
-                $q->where('account_id', $accountId);
-            });
+            ->whereHas('project', fn (Builder $project) => $project->where('account_id', $accountId));
+    }
+
+    public function scopeWithCurrentStatus(Builder $query): Builder
+    {
+        return $query
+            ->select($this->qualifyColumn('id'))
+            ->with([
+                'budgetPlans.latestActivity',
+                'ownerEstimates:id,cc_work_package_id,log_status_id',
+                'ownerEstimates.latestActivity',
+                'contractDocuments:id,cc_work_package_id',
+                'changeOrders.latestActivity',
+                'variationOrders:id,cc_work_package_id,log_status_id',
+            ]);
+    }
+
+    public function scopeWithFinancialOverview(Builder $query): Builder
+    {
+        return $query
+            ->select($this->qualifyColumns(['id', 'work_package']))
+            ->withFinancialSummary()
+            ->without(['latestContractDocument', 'latestContractDocument.vendor'])
+            ->withCount([
+                'contractDocuments',
+                'changeOrders as estimated_change_order_count' => fn ($changeOrders) => $changeOrders->forEstimatedVariation(),
+            ]);
     }
 
     public function scopeWithFinancialSummary(Builder $query): Builder
     {
         return $query
-                ->with('latestContractDocument.vendor')
-                ->withSum('budgetPlans as budget_estimate_total', 'budget_estimate')
-                ->withSum('ownerEstimates as estimated_contract_total', 'estimated_contract')
-                ->withSum('contractDocuments as contract_amount_excl_vat_total', 'contract_amount_excl_vat')
-                ->withSum([
-                    'changeOrders as estimated_variation_change_order_total' => function ($query) {
-                        $query->whereHas('latestActivity', function ($q) {
-                            $q->whereIn('log_status_id', [1, 3, 4]);
-                        });
-                    }
-                ], 'estimated_variation')
-                ->withSum([
-                    'variationOrders as estimated_variation_variation_order_total' => function ($query) {
-                        $query->where('log_status_id', 1);
-                    }
-                ], 'approved_variation')
-                ->withSum([
-                    'variationOrders as approved_variation_variation_order_total' => function ($query) {
-                        $query->whereIn('log_status_id', [3, 4]);
-                    }
-                ], 'approved_variation');
+            ->with('latestContractDocument.vendor')
+            ->withSum('budgetPlans as budget_estimate_total', 'budget_estimate')
+            ->withSum('ownerEstimates as estimated_contract_total', 'estimated_contract')
+            ->withSum('contractDocuments as contract_amount_excl_vat_total', 'contract_amount_excl_vat')
+            ->withSum([
+                'changeOrders as estimated_variation_change_order_total' => fn ($changeOrders) => $changeOrders->forEstimatedVariation(),
+            ], 'estimated_variation')
+            ->withSum([
+                'variationOrders as estimated_variation_variation_order_total' => fn ($variationOrders) => $variationOrders->where('log_status_id', 1),
+            ], 'approved_variation')
+            ->withSum([
+                'variationOrders as approved_variation_variation_order_total' => fn ($variationOrders) => $variationOrders->forApprovedVariation(),
+            ], 'approved_variation');
+    }
+
+    public function scopeWithDashboardDetails(Builder $query): Builder
+    {
+        return $query
+            ->select($this->qualifyColumns(['id', 'work_package', 'company_id', 'updated_by', 'updated_at']))
+            ->with(['company:id,company_name', 'updater:id,first_name,last_name']);
     }
 }
