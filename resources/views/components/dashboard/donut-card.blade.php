@@ -8,16 +8,19 @@
 ])
 
 <div class="card h-100 border shadow-sm rounded-4"
-     data-chart-size="145"
+     data-chart-size="180"
+     data-total="{{ $hasDataSource ? ($total ?? '-') : '-' }}"
      @if ($showChart) data-donut-component @endif>
     <div class="card-body d-flex flex-column p-3 p-md-4">
         <h5 class="card-title text-primary text-center text-break fs-6" title="{{ $label }}">
             {{ $label }}
         </h5>
 
-        <p class="text-body-secondary text-center mb-3">
-            Total Data: {{ $total ?? '-' }}
-        </p>
+        @if (!$showChart)
+            <p class="text-body-secondary text-center mb-3">
+                Total Data: {{ $total ?? '-' }}
+            </p>
+        @endif
 
         @if ($showChart)
             <div class="d-flex flex-column flex-grow-1 gap-3">
@@ -26,21 +29,21 @@
                      data-donut-chart>
                 </div>
 
-                <ul class="list-unstyled mb-0 small">
-                    @foreach ($statuses as $status)
-                        <li class="d-flex align-items-center gap-2 mb-2">
-                            <span
-                                class="rounded-circle flex-shrink-0"
-                                style="width: 8px; height: 8px;"
-                                data-donut-swatch>
-                            </span>
-                            <span class="text-break">{{ $status->status }}</span>
-                            <span class="ms-auto fw-semibold flex-shrink-0">
-                                {{ $hasDataSource ? ($status->total ?? 0) : '-' }}
-                            </span>
-                        </li>
-                    @endforeach
-                </ul>
+                <ul class="list-unstyled d-flex flex-column flex-md-row flex-wrap justify-content-md-center gap-2 gap-md-3 mb-0 small">
+    @foreach ($statuses as $status)
+        <li class="d-flex align-items-center gap-1">
+            <span
+                class="rounded-circle flex-shrink-0"
+                style="width: 8px; height: 8px;"
+                data-donut-swatch>
+            </span>
+
+            <span class="text-break">
+                {{ $status->status }} ({{ $hasDataSource ? ($status->total ?? 0) : '-' }})
+            </span>
+        </li>
+    @endforeach
+</ul>
             </div>
         @else
             <div class="d-flex justify-content-center py-4">
@@ -66,12 +69,15 @@
 </div>
 
 @once
-    <script src="{{ asset('dist/external_plugins/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('dist/external_plugins/apexcharts-6.7.0.min.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        function renderDonuts() {
             const theme = getComputedStyle(document.documentElement);
 
             document.querySelectorAll('[data-donut-component]').forEach((component) => {
+                if (component.offsetWidth === 0 || component.dataset.chartRendered) {
+                    return;
+                }
                 const statuses = JSON.parse(
                     component.querySelector('[data-donut-statuses]').textContent
                 );
@@ -100,12 +106,45 @@
                     dataLabels: { enabled: false },
                     legend: { show: false },
                     stroke: { width: 0 },
-                    plotOptions: { pie: { expandOnClick: false, donut: { size: '58%' } } },
+                    plotOptions: {
+                        pie: {
+                            expandOnClick: false,
+                            borderRadius: 8,
+                            spacing: 3,
+                            donut: {
+                                size: '68%',
+                                labels: {
+                                    show: true,
+                                    name: {
+                                        fontSize: '12px',
+                                    },
+                                    value: {
+                                        fontSize: '18px',
+                                    },
+                                    total: {
+                                        show: true,
+                                        showAlways: false,
+                                        label: 'Total Data',
+                                        fontSize: '12px',
+                                        formatter: () => component.dataset.total,
+                                    },
+                                },
+                            },
+                        },
+                    },
                     tooltip: { enabled: hasData, y: { formatter: (value) => `${value}` } },
                 });
 
+                component.dataset.chartRendered = 'true';
                 chart.render();
             });
+        }
+
+        document.addEventListener('DOMContentLoaded', renderDonuts);
+        document.addEventListener('shown.bs.tab', (event) => {
+            if (event.target.id === 'current-status-tab') {
+                renderDonuts();
+            }
         });
     </script>
 @endonce

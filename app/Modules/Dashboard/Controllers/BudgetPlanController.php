@@ -36,7 +36,6 @@ class BudgetPlanController extends Controller
             'status' => $budgetPlan->logStatus?->status ?? '-',
             'status_bg_color' => $budgetPlan->logStatus?->bg_color,
             'assigned_to' => $budgetPlan->latestActivity?->assignee?->display_name ?? '-',
-            'last_updated' => ($budgetPlan->latestActivity?->updated_at ?? $budgetPlan->updated_at)?->format('d M Y H:i') ?? '-',
         ];
     }
 }

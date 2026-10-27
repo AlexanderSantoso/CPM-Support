@@ -139,6 +139,7 @@ class WorkPackage extends Model
             ->withFinancialSummary()
             ->without(['latestContractDocument', 'latestContractDocument.vendor'])
             ->withCount([
+                'ownerEstimates',
                 'contractDocuments',
                 'changeOrders as estimated_change_order_count' => fn ($changeOrders) => $changeOrders->forEstimatedVariation(),
             ]);

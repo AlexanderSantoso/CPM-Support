@@ -47,7 +47,10 @@ class ContractController extends Controller
             'down_payment_raw' => (float) $contract->down_payment,
             'retention' => Helper::formatRupiah($contract->retention) . '%',
             'retention_raw' => (float) $contract->retention,
-            'term_of_payment' => '',
+            'term_of_payment' => $contract->termsOfPayment
+            ->pluck('payment_term')
+            ->filter()
+            ->implode(', ') ?: '-',
         ];
     }
 }

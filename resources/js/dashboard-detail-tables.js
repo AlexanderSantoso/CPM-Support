@@ -77,9 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
         order: options.order ?? [],
         dom: 't',
         language: {
-            emptyTable: 'No data found.',
+            emptyTable: options.emptyTable ?? 'No data found.',
+            zeroRecords: options.emptyTable ?? 'No matching records found',
             loadingRecords: '',
         },
+        columnDefs: [{ targets: '_all', className: 'dt-head-left' }],
         columns,
     });
 
@@ -150,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 render: renderStatus,
             },
             { data: 'assigned_to', name: 'latestActivity.assignee.first_name', defaultContent: '-', render: text },
-            { data: 'last_updated', name: 'updated_at', orderable: false, searchable: false, defaultContent: '-', render: text },
         ],
     });
 
@@ -167,20 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'estimated_contract', name: 'estimated_contract', className: 'dt-head-left dt-body-right', render: sortedText('estimated_contract_raw') },
             { data: 'status', name: 'logStatus.status', render: renderStatus, defaultContent: '-' },
             { data: 'assigned_to', name: 'latestActivity.assignee.first_name', render: text, defaultContent: '-' },
-            {
-                data: 'last_updated', name: 'updated_at', orderable: false, searchable: false,
-                render: (value, type, row) => {
-                    if (type !== 'display') return `${row.last_updated_by || '-'} ${value || '-'}`;
-                    const content = document.createElement('div');
-                    const name = document.createElement('div');
-                    name.textContent = row.last_updated_by || '-';
-                    const date = document.createElement('div');
-                    date.className = 'mt-1 text-body-secondary small text-nowrap';
-                    date.textContent = value || '-';
-                    content.append(name, date);
-                    return content;
-                },
-            },
         ],
     });
 
@@ -202,7 +189,18 @@ document.addEventListener('DOMContentLoaded', () => {
             { data: 'contract_amount_incl_vat', name: 'contract_amount_excl_vat', className: 'dt-head-left dt-body-right', orderable: false, searchable: false, defaultContent: '-', render: text },
             { data: 'down_payment', name: 'down_payment', className: 'dt-head-left dt-body-right', defaultContent: '-', render: sortedText('down_payment_raw') },
             { data: 'retention', name: 'retention', className: 'dt-head-left dt-body-right', defaultContent: '-', render: sortedText('retention_raw') },
-            { data: 'term_of_payment', name: 'term_of_payment', className: 'dt-head-left dt-body-right', orderable: false, searchable: false, defaultContent: '-', render: text },
+            {
+                data: 'term_of_payment', name: 'term_of_payment',
+                className: 'dashboard-payment-terms dt-head-left text-start align-top',
+                width: '240px', orderable: false, searchable: false, defaultContent: '-',
+                render: (value, type) => {
+                    if (type !== 'display') return value || '-';
+                    const content = document.createElement('div');
+                    content.className = 'dashboard-payment-terms-content text-wrap text-break';
+                    content.textContent = value || '-';
+                    return content;
+                },
+            },
         ],
     });
 
@@ -242,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal: approvedVariationModal,
         tableElement: approvedVariationModal?.querySelector('[data-variation-order-table]'),
         urlKey: 'variationOrderDataUrl',
-        options: { order: [[0, 'desc']], scrollX: true },
+        options: { order: [[0, 'desc']], scrollX: true, emptyTable: '' },
         columns: [
             { data: 'variation_order_no', defaultContent: '-', render: sortedText('doc_sequence') },
             { data: 'vendor', defaultContent: '-', render: text },
@@ -256,8 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             { data: 'status', name: 'logStatus.status', defaultContent: '-', render: renderStatus },
             { data: 'assigned_to', defaultContent: '-', render: text },
-            { data: 'input_date', defaultContent: '-', render: sortedText('input_date_sort') },
-            { data: 'last_updated', defaultContent: '-', render: sortedText('last_updated_sort') },
         ],
     });
 

@@ -53,7 +53,6 @@
                                 <th scope="col">Budget Estimate</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Assigned To</th>
-                                <th scope="col">Last Updated</th>
                             </tr>
                         </thead>
                             <tbody></tbody>
@@ -84,7 +83,6 @@
                             <th scope="col">Estimated Contract</th>
                             <th scope="col">Status</th>
                             <th scope="col">Assigned To</th>
-                            <th scope="col">Last Updated</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -117,7 +115,7 @@
                 <table class="table w-100 mb-0 align-middle text-nowrap dashboard-budget-modal-table" data-contract-table>
                     <thead>
                         <tr>
-                            <th>Contract No</th>
+                            <th>Contract Number</th>
                             <th>Issued Date</th>
                             <th>Vendor</th>
                             <th>Address</th>
@@ -161,8 +159,8 @@
                         <tr>
                             <th rowspan="2">Date Raised</th>
                             <th rowspan="2">Input By</th>
-                            <th rowspan="2">CR No</th>
-                            <th rowspan="2">Contract No</th>
+                            <th rowspan="2">Change Order Number</th>
+                            <th rowspan="2">Contract Number</th>
                             <th rowspan="2">Vendor</th>
                             <th rowspan="2">Work Package</th>
                             <th rowspan="2">Building/Phase</th>
@@ -208,16 +206,14 @@
                 <table class="table w-100 mb-0 align-middle text-nowrap dashboard-budget-modal-table" data-variation-order-table>
                     <thead>
                         <tr>
-                            <th>Variation Order No</th>
+                            <th>Variation Order Number</th>
                             <th>Vendor</th>
                             <th>Work Package</th>
-                            <th>SI No</th>
-                            <th>Change Order No</th>
+                            <th>Site Instruction Number</th>
+                            <th>Change Order Number</th>
                             <th>Approved Variation</th>
                             <th>Status</th>
                             <th>Assign to</th>
-                            <th>Input Date</th>
-                            <th>Last Update</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

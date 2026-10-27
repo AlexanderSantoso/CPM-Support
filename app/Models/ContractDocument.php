@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\CostAndContract\WorkPackage\Models\WorkPackage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -35,10 +36,15 @@ class ContractDocument extends Model
         return $query->whereHas('workPackage', fn ($workPackages) => $workPackages->forCurrentTenant($accountId, $projectId));
     }
 
+    public function termsOfPayment(): HasMany
+    {
+        return $this->hasMany(ContractDocumentTermOfPayment::class, 'cc_contract_document_id');
+    }
+
     public function scopeWithDashboardDetails(Builder $query, int $workPackageId = 0): Builder
     {
         return $query
             ->when($workPackageId, fn ($contracts) => $contracts->where('cc_work_package_id', $workPackageId))
-            ->with(['vendor:id,company_name', 'workPackage:id,work_package']);
+            ->with(['vendor:id,company_name', 'workPackage:id,work_package', 'termsOfPayment:id,cc_contract_document_id,payment_term']);
     }
 }

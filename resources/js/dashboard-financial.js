@@ -31,7 +31,7 @@ export function renderFinancialOverview(root, { data, totals }) {
 
         const details = [
             ['budget_plan', row.budget_plan != null, '#budgetPlanDetailModal', 'budgetPlanDataUrl', root.dataset.budgetPlanUrl],
-            ['estimated_contract', row.estimated_contract != null, '#estimatedContractDetailModal', 'ownerEstimateDataUrl', root.dataset.ownerEstimateUrl],
+            ['estimated_contract', row.has_owner_estimate_details, '#estimatedContractDetailModal', 'ownerEstimateDataUrl', root.dataset.ownerEstimateUrl],
             ['contract_amount_excl_vat', row.has_contract_details, '#contractDetailModal', 'contractDataUrl', root.dataset.contractUrl],
             ['estimated_variation', row.has_change_order_details, '#estimatedVariationDetailModal', 'changeOrderDataUrl', root.dataset.changeOrderUrl],
             ['approved_variation', true, '#approvedVariationDetailModal', 'variationOrderDataUrl', root.dataset.approvedVariationUrl],

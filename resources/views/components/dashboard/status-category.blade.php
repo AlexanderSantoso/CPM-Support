@@ -4,7 +4,7 @@
     <summary class="fs-6 user-select-none">{{ $label }}</summary>
     <div class="row g-4 mt-0">
         @foreach ($cards as $card)
-            <div class="col-6 col-xl-4">
+            <div class="col-6 col-md-4 col-xl-3">
                 <x-dashboard.donut-card
                     :label="$card['title']"
                     :total="$card['count']"

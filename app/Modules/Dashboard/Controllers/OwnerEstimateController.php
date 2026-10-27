@@ -37,8 +37,6 @@ class OwnerEstimateController extends Controller
             'status' => $ownerEstimate->logStatus?->status ?? '-',
             'status_bg_color' => $ownerEstimate->logStatus?->bg_color,
             'assigned_to' => $ownerEstimate->latestActivity?->assignee?->display_name ?? '-',
-            'last_updated_by' => $ownerEstimate->latestActivity?->creator?->display_name ?? $ownerEstimate->updater?->display_name ?? '-',
-            'last_updated' => ($ownerEstimate->latestActivity?->updated_at ?? $ownerEstimate->updated_at)?->format('d M Y H:i') ?? '-',
         ];
     }
 }

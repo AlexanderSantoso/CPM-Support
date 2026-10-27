@@ -2,7 +2,7 @@
     $packageFilter = ['work_package_id' => $row['work_package_id']];
     $columns = [
         'budget_plan' => [$row['budget_plan'] !== null, 'budgetPlanDetailModal', 'budget-plan-data-url', route('dashboard.current-status.budget-plans', $packageFilter)],
-        'estimated_contract' => [$row['estimated_contract'] !== null, 'estimatedContractDetailModal', 'owner-estimate-data-url', route('dashboard.owner-estimates', $packageFilter)],
+        'estimated_contract' => [$row['has_owner_estimate_details'], 'estimatedContractDetailModal', 'owner-estimate-data-url', route('dashboard.owner-estimates', $packageFilter)],
         'contract_amount_excl_vat' => [$row['has_contract_details'], 'contractDetailModal', 'contract-data-url', route('dashboard.current-status.contracts', $packageFilter)],
         'estimated_variation' => [$row['has_change_order_details'], 'estimatedVariationDetailModal', 'change-order-data-url', route('dashboard.current-status.change-orders', $packageFilter)],
         'approved_variation' => [true, 'approvedVariationDetailModal', 'variation-order-data-url', route('dashboard.approved-variations', $packageFilter)],

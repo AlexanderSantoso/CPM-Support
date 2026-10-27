@@ -26,4 +26,15 @@
         .dashboard-budget-modal-table td.dt-body-right {
             font-variant-numeric: tabular-nums;
         }
+        .dashboard-budget-modal-table td.dashboard-payment-terms {
+            width: 240px;
+            min-width: 200px;
+            max-width: 280px;
+        }
 
+        .dashboard-payment-terms-content {
+            width: 240px;
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
