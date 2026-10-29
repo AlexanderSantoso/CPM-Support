@@ -71,7 +71,24 @@
   display: block !important;
 }
 
+
+
+table {
+    border-collapse: collapse;
+}
+
 thead th {
     text-align: center;
     vertical-align: middle;
+}
+
+th, td {
+    border: 1px solid #ccc;
+}
+
+/* Tabel tata letak (kop, label-nilai, tanda tangan) yang tidak boleh bergaris. */
+table.no-border,
+table.no-border th,
+table.no-border td {
+    border: 0;
 }

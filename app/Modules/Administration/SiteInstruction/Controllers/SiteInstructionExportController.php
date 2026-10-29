@@ -2,18 +2,23 @@
 
 namespace App\Modules\Administration\SiteInstruction\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Modules\Administration\SiteInstruction\Models\SiteInstruction;
 use App\Modules\Administration\SiteInstruction\Models\SiteInstructionAttachmentType;
 use App\Modules\Administration\SiteInstruction\Models\SiteInstructionPotentialCostTime;
 use App\Modules\Administration\SiteInstruction\Models\SiteInstructionTypeOfWork;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Illuminate\Support\Carbon;
+use App\Core\Controllers\BaseModuleController;
 
-class SiteInstructionExportController extends Controller
+class SiteInstructionExportController extends BaseModuleController
 {
-    public function pdf(SiteInstruction $siteInstruction)
+    public function pdf(string $encryptedId)
     {
+        $siteInstruction = SiteInstruction::findOrFail(
+            $this->cryptoService()->decryptId($encryptedId)
+        );
+
         $siteInstruction->load([
             'project.account',
             'contractDocument.vendor',
@@ -40,9 +45,13 @@ class SiteInstructionExportController extends Controller
         $project = $siteInstruction->project;
         $account = $project?->account;
 
+        $issued = $siteInstruction->getRawOriginal('issued_date');
+        $issuedDate = $issued ? Carbon::parse($issued)->format('d/m/Y') : null;
+
         return Pdf::view('modules.administration.site-instruction.export.site-instruction', [
             'si' => $siteInstruction,
             'docNo' => $docNo,
+            'issuedDate' => $issuedDate,
             'projectName' => $project?->project_name,
             'projectLocation' => null, // kolom lokasi proyek belum diketahui, lihat Tahap 1
             'contractor' => $siteInstruction->contractDocument?->vendor?->company_name,

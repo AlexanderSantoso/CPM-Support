@@ -2,16 +2,18 @@
 
 namespace App\Modules\Administration\MinutesOfMeeting\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Controllers\BaseModuleController;
 use App\Modules\Administration\MinutesOfMeeting\Models\MinutesOfMeeting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
 
-class MinutesOfMeetingExportController extends Controller
+class MinutesOfMeetingExportController extends BaseModuleController
 {
-    public function pdf(MinutesOfMeeting $minutesOfMeeting)
+    public function pdf(string $encryptedId)
     {
+        $minutesOfMeeting = MinutesOfMeeting::findOrFail($this->cryptoService()->decryptId($encryptedId));
+
         $minutesOfMeeting->load([
             'project.account',
             'attendees' => fn ($q) => $q->with('company')->orderBy('id'),

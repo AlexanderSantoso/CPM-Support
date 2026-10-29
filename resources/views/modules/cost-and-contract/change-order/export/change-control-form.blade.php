@@ -12,11 +12,12 @@
 <html>
 <head>
     <meta charset="utf-8">
+    @include('pdf.shared.custom-css')
     <style>
         @page { margin: 30px 38px; }
         body { font-family: Helvetica, sans-serif; font-size: 9px; color: #000; }
 
-        table.top { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        table.top { width: 100%; margin-bottom: 6px; }
         table.top td { vertical-align: top; }
         .proj { color: #4a6a9a; font-size: 11px; }
         .cat { font-weight: bold; color: #4a6a9a; font-size: 8px; margin-top: 2px; }
@@ -25,9 +26,10 @@
 
         h1 { color: #1f4e8c; font-size: 14px; margin: 0 0 6px; padding-bottom: 4px; border-bottom: 1px solid #000; }
 
-        table.box { width: 100%; border-collapse: collapse; border: 1pt solid #eee; border-top: none; page-break-inside: avoid; }
-        table.box.first { border-top: 1pt solid #eee; }
-        table.box td { border: 1pt solid #eee; padding: 3px 5px; vertical-align: top; }
+        /* Garis tabel dari custom.css. Margin -1px mencegah garis dobel di sambungan antar tabel. */
+        table.box { width: 100%; page-break-inside: avoid; }
+        table.box + table.box { margin-top: -1px; }
+        table.box td { padding: 3px 5px; vertical-align: top; }
 
         .lbl { font-weight: bold; }
         .val { text-align: center; color: #444; margin-top: 3px; }
@@ -39,7 +41,7 @@
     </style>
 </head>
 <body>
-    <table class="top">
+    <table class="top no-border">
         <tr>
             <td style="width: 35%;">
                 <div class="proj">{{ $co->project?->project_name }}</div>

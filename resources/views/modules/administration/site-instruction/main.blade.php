@@ -30,7 +30,7 @@
                             <td>{{ $siteInstruction->logStatus->status }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="{{ route('administration.site-instruction.showDetailPage', $siteInstruction->encrypted_id) }}" class="btn btn-primary">Print</a>
+                                    <a href="{{ route('administration.site-instruction.export.pdf', $siteInstruction->encrypted_id) }}" class="btn btn-secondary" target="_blank">Print</a>
                                 </div>
                             </td>
                         </tr>

@@ -11,6 +11,6 @@ Route::controller(SiteInstructionController::class)->group(function () {
 });
 
 Route::controller(SiteInstructionExportController::class)->group(function () {
-    Route::get('{siteInstruction}/export/pdf', 'pdf')->whereNumber('siteInstruction')->name('export.pdf');
+    Route::get('{encryptedId}/export/pdf', 'pdf')->name('export.pdf');
 });
 

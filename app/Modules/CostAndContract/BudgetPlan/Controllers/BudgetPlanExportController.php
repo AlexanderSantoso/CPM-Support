@@ -2,7 +2,7 @@
 
 namespace App\Modules\CostAndContract\BudgetPlan\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Controllers\BaseModuleController;
 use App\Modules\CostAndContract\BudgetPlan\Exports\BudgetPlansExport;
 use App\Modules\CostAndContract\BudgetPlan\Models\BudgetPlan;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Spatie\LaravelPdf\Facades\Pdf;
 use ZipArchive;
 
-class BudgetPlanExportController extends Controller
+class BudgetPlanExportController extends BaseModuleController
 {
     /** Excel: satu baris per plan. */
     public function excel(Request $request)
@@ -26,8 +26,10 @@ class BudgetPlanExportController extends Controller
     }
 
     /** PDF untuk satu plan. */
-    public function pdf(BudgetPlan $budgetPlan)
+    public function pdf(string $encryptedId)
     {
+        $budgetPlan = BudgetPlan::findOrFail($this->cryptoService()->decryptId($encryptedId));
+
         $budgetPlan->load($this->pdfRelations());
 
         return $this->buildPdf($budgetPlan)

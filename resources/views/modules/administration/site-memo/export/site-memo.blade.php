@@ -8,6 +8,7 @@
 <head>
     <meta charset="utf-8">
     <title>Site Memo {{ $docNo }}</title>
+    @include('pdf.shared.custom-css')
     <style>
         @page { margin: 155px 40px 75px 40px; }
         body { font-family: Helvetica, sans-serif; font-size: 10px; color: #000; }
@@ -17,16 +18,16 @@
         footer { position: fixed; bottom: -55px; left: 0; right: 0; font-size: 7px; font-style: italic; }
         .docno { text-align: right; font-size: 7px; font-style: italic; margin-bottom: 3px; }
 
-        table { width: 100%; border-collapse: collapse; }
-        table.hd td { border: 0.5pt solid #555; text-align: center; vertical-align: middle; }
+        table { width: 100%; }
+        table.hd td { text-align: center; vertical-align: middle; }
         .pname { font-size: 13px; font-weight: bold; }
         .ploc { font-size: 9px; font-weight: bold; font-style: italic; margin-top: 3px; }
         .brand { font-size: 9px; font-weight: bold; }
         .title { font-size: 15px; font-weight: bold; padding: 5px 0; }
 
         /* Kotak identitas. */
-        table.box { border: 0.5pt solid #555; margin-top: 14px; }
-        table.box td { border: 0.5pt solid #555; padding: 5px 6px; vertical-align: top; }
+        table.box { margin-top: 14px; }
+        table.box td { padding: 5px 6px; vertical-align: top; }
         .chk { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; }
         .opt { white-space: nowrap; margin-right: 6px; }
         .row { margin-top: 5px; }
@@ -107,7 +108,7 @@
     </table>
 
     {{-- To, Subject, Location --}}
-    <table class="meta">
+    <table class="meta no-border">
         <tr>
             <td style="width: 12%;">To</td>
             <td style="width: 3%;">:</td>

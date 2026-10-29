@@ -1,6 +1,5 @@
 @php
     $name = fn ($u) => $u ? trim($u->first_name . ' ' . $u->last_name) : '-';
-    $date = fn ($d) => $d ? $d->format('d/m/Y') : '-';
     $qty = fn ($v) => rtrim(rtrim(number_format((float) $v, 2, ',', '.'), '0'), ',');
     $text = fn ($v) => filled($v) ? nl2br(e($v)) : '-';
     $box = fn ($on) => $on ? '&#9745;' : '&#9744;';
@@ -10,6 +9,7 @@
 <head>
     <meta charset="utf-8">
     <title>Site Instruction {{ $docNo }}</title>
+    @include('pdf.shared.custom-css')
     <style>
         @page { margin: 155px 40px 75px 40px; }
         body { font-family: Helvetica, sans-serif; font-size: 9px; color: #000; }
@@ -19,21 +19,20 @@
         footer { position: fixed; bottom: -55px; left: 0; right: 0; font-size: 7px; font-style: italic; }
         .docno { text-align: right; font-size: 7px; font-style: italic; margin-bottom: 3px; }
 
-        table { width: 100%; border-collapse: collapse; }
-        table.hd td { border: 0.5pt solid #555; text-align: center; vertical-align: middle; }
+        table { width: 100%; }
+        table.hd td { text-align: center; vertical-align: middle; }
         .pname { font-size: 13px; font-weight: bold; }
         .ploc { font-size: 9px; font-weight: bold; margin-top: 3px; }
         .brand { font-size: 16px; font-weight: bold; color: #1f3f7f; }
         .title { font-size: 15px; font-weight: bold; padding: 5px 0; }
 
-        /* Kotak form: border atas dihilangkan supaya tidak dobel di sambungan antar tabel. */
-        table.box { border: 0.5pt solid #555; border-top: none; page-break-inside: avoid; }
-        table.box.first { border-top: 0.5pt solid #555; }
-        table.box td, table.box th { border: 0.5pt solid #555; padding: 4px 5px; vertical-align: top; }
-        table.box table.plain td { border: none; padding: 2px 3px; }
+        /* Kotak form: garis tabel dari custom.css. Margin -1px mencegah garis dobel di sambungan antar tabel. */
+        table.box { page-break-inside: avoid; }
+        table.box + table.box, table.box + table.items { margin-top: -1px; }
+        table.box td, table.box th { padding: 4px 5px; vertical-align: top; }
+        table.box table.plain td { padding: 2px 3px; }
 
-        table.items { border: 0.5pt solid #555; border-top: none; }
-        table.items th, table.items td { border: 0.5pt solid #555; padding: 4px 5px; vertical-align: top; }
+        table.items th, table.items td { padding: 4px 5px; vertical-align: top; }
         table.items thead { display: table-header-group; }
         table.items tr { page-break-inside: avoid; }
 
@@ -93,7 +92,7 @@
             <td class="lbl">Contract / PO Number</td>
             <td>{{ $contractNo ?? '-' }}</td>
             <td class="lbl">Issued Date</td>
-            <td>{{ $date($si->issued_date) }}</td>
+            <td>{{ $issuedDate ?? '-' }}</td>
         </tr>
     </table>
 
@@ -106,7 +105,7 @@
         </tr>
         <tr>
             <td>
-                <table class="plain">
+                <table class="plain no-border">
                     @foreach ($typeRows as $row)
                         <tr>
                             @foreach ($row as $t)
@@ -167,7 +166,7 @@
                 <th colspan="5" class="c">INSTRUCTION</th>
             </tr>
             <tr>
-                <th style="width: 8%;" class="c">Number</th>
+                <th style="width: 8%;" class="c">No</th>
                 <th style="width: 42%;" class="c">Description</th>
                 <th style="width: 9%;" class="c">Unit</th>
                 <th style="width: 11%;" class="c">Qty</th>

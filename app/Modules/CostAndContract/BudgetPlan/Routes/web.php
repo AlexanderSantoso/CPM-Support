@@ -6,5 +6,5 @@ use App\Modules\CostAndContract\BudgetPlan\Controllers\BudgetPlanExportControlle
 Route::controller(BudgetPlanExportController::class)->group(function () {
     Route::get('export/excel', 'excel')->name('export.excel');
     Route::get('export/all-pdfs', 'allPdfs')->name('export.all-pdfs');
-    Route::get('{budgetPlan}/export/pdf', 'pdf')->whereNumber('budgetPlan')->name('export.pdf');
+    Route::get('{encryptedId}/export/pdf', 'pdf')->name('export.pdf');
 });

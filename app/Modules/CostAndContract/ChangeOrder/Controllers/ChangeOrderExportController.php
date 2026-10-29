@@ -2,16 +2,18 @@
 
 namespace App\Modules\CostAndContract\ChangeOrder\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Controllers\BaseModuleController;
 use App\Models\User;
 use App\Modules\CostAndContract\ChangeOrder\Models\ChangeOrder;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
 
-class ChangeOrderExportController extends Controller
+class ChangeOrderExportController extends BaseModuleController
 {
-    public function pdf(ChangeOrder $changeOrder)
+    public function pdf(string $encryptedId)
     {
+        $changeOrder = ChangeOrder::findOrFail($this->cryptoService()->decryptId($encryptedId));
+
         $changeOrder->load([
             'project.account',
             'phase',

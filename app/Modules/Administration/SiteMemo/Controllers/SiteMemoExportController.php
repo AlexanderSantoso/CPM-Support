@@ -2,17 +2,19 @@
 
 namespace App\Modules\Administration\SiteMemo\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Controllers\BaseModuleController;
 use App\Models\Company;
 use App\Modules\Administration\SiteMemo\Models\SiteMemo;
 use App\Modules\Administration\SiteMemo\Models\SiteMemoCategory;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
 
-class SiteMemoExportController extends Controller
+class SiteMemoExportController extends BaseModuleController
 {
-    public function pdf(SiteMemo $siteMemo)
+    public function pdf(string $encryptedId)
     {
+        $siteMemo = SiteMemo::findOrFail($this->cryptoService()->decryptId($encryptedId));
+
         $siteMemo->load(['project.account', 'toCompany', 'creator']);
 
         // Semua kategori ditampilkan sebagai checkbox, yang terpilih dicentang.
