@@ -1,7 +1,12 @@
 <?php
+
+use App\Modules\CostAndContract\BudgetPlan\Controllers\BudgetPlanController;
+use App\Modules\CostAndContract\BudgetPlan\Controllers\BudgetPlanExportController;
 use Illuminate\Support\Facades\Route;
 
-use App\Modules\CostAndContract\BudgetPlan\Controllers\BudgetPlanExportController;
+Route::controller(BudgetPlanController::class)->group(function () {
+    Route::get('/', 'main')->name('main');
+});
 
 Route::controller(BudgetPlanExportController::class)->group(function () {
     Route::get('export/excel', 'excel')->name('export.excel');

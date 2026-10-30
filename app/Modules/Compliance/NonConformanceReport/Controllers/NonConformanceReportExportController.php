@@ -33,11 +33,7 @@ class NonConformanceReportExportController extends BaseModuleController
         $inspectionDate = $inspection ? Carbon::parse($inspection)->format('d-m-Y') : null;
         $closedDate = $completion ? Carbon::parse($completion)->format('d-m-Y') : null;
 
-        // Format nomor mengikuti template: no/NCR-<Project>/MM/YYYY, bulan dan tahun dari tanggal inspeksi.
-        $month = $inspection ? Carbon::parse($inspection)->format('m') : '--';
-        $year = $inspection ? Carbon::parse($inspection)->format('Y') : '----';
-        $ncrNo = str_pad((string) $ncr->doc_sequence, 3, '0', STR_PAD_LEFT)
-            . '/NCR-' . $ncr->doc_project_initial . '/' . $month . '/' . $year;
+        $ncrNo = $ncr->ncrNumber ?? '-';
 
         // Foto dikelompokkan menurut kolom type. KEY_PLAN tidak ada di template, jadi tidak dipakai.
         $photoGroup = fn (string $type) => $ncr->photos

@@ -71,6 +71,8 @@
         .doc-title { color: #2e74b5; font-size: 22px; margin: 0; padding-top: 4px; }
         h1 { font-size: 15px; font-weight: normal; margin: 34px 0 12px 0; page-break-after: avoid; }
         h2 { font-size: 15px; font-weight: normal; margin: 26px 0 10px 0; page-break-after: avoid; }
+        /* Awal halaman paksa, mengikuti dokumen acuan: 3.2, 4, 5, dan 8 selalu mulai di halaman baru. */
+        h1.pb, h2.pb { page-break-before: always; margin-top: 0; }
         h1.first { margin-top: 28px; }
         .n { display: inline-block; width: 48px; }
         p { margin: 0 0 10px 0; }
@@ -218,7 +220,7 @@
     <h2><span class="n">3.1.</span>Organization Chart</h2>
     <div class="space"></div>
 
-    <h2><span class="n">3.2.</span>Roles and Responsibilities</h2>
+    <h2 class="pb"><span class="n">3.2.</span>Roles and Responsibilities</h2>
     <table class="t hd-grey">
         <thead>
             <tr>
@@ -245,7 +247,7 @@
 
     <h2><span class="n">3.3.</span>Client Project Team</h2>
 
-    <h1><span class="n">4.</span>BUDGET</h1>
+    <h1 class="pb"><span class="n">4.</span>BUDGET</h1>
 
     <h2><span class="n">4.1.</span>Scope of Work{{ $asOf }}</h2>
     <table class="t hd-dark">
@@ -283,7 +285,7 @@
         </tbody>
     </table>
 
-    <h1><span class="n">5.</span>MILESTONE SCHEDULE{{ $asOf }}</h1>
+    <h1 class="pb"><span class="n">5.</span>MILESTONE SCHEDULE{{ $asOf }}</h1>
     <table class="t hd-dark">
         <thead>
             <tr>
@@ -341,7 +343,7 @@
     <h2><span class="n">7.2.</span>Budget Constraints</h2>
     <h2><span class="n">7.3.</span>Architect / Contractor Constraints</h2>
 
-    <h1><span class="n">8.</span>REFERENCES AND LINKS</h1>
+    <h1 class="pb"><span class="n">8.</span>REFERENCES AND LINKS</h1>
     @foreach ($references as $reference)
         <p style="margin-bottom: 6px;"><span class="n">8.{{ $loop->iteration }}.</span>{{ $reference }}</p>
     @endforeach

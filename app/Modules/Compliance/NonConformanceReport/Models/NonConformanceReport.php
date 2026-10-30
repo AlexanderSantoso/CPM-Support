@@ -6,10 +6,12 @@ use App\Models\Company;
 use App\Models\LogStatus;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class NonConformanceReport extends Model
 {
@@ -50,5 +52,31 @@ class NonConformanceReport extends Model
     public function photos(): HasMany
     {
         return $this->hasMany(NonConformanceReportPhoto::class, 'comp_non_conformance_report_id');
+    }
+
+    /**
+     * Nomor mengikuti template: no/NCR-<Project>/MM/YYYY, bulan dan tahun dari tanggal inspeksi.
+     */
+    protected function ncrNumber(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $inspection = $this->getRawOriginal('inspection_date');
+
+                if (! $inspection || ! $this->doc_sequence) {
+                    return null;
+                }
+
+                $date = Carbon::parse($inspection);
+
+                return sprintf(
+                    '%03d/NCR-%s/%s/%s',
+                    $this->doc_sequence,
+                    $this->doc_project_initial,
+                    $date->format('m'),
+                    $date->format('Y')
+                );
+            }
+        );
     }
 }

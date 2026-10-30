@@ -4,6 +4,7 @@ namespace App\Modules\Administration\SiteMemo\Controllers;
 
 use App\Core\Controllers\BaseModuleController;
 use App\Models\Company;
+use App\Models\ContractDocument;
 use App\Modules\Administration\SiteMemo\Models\SiteMemo;
 use App\Modules\Administration\SiteMemo\Models\SiteMemoCategory;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +33,15 @@ class SiteMemoExportController extends BaseModuleController
         // Penerima memo: semua kontraktor ("All") atau satu company.
         $toName = $siteMemo->to_all === 'Y' ? 'All' : $siteMemo->toCompany?->company_name;
 
+        // Contract No dari cost_contract_contract_documents.contract_no. Site Memo tidak punya kolom relasi ke kontrak,
+        // jadi dicocokkan lewat proyek yang sama dan penerima memo (vendor_id = to_company_id).
+        // Kalau memo ditujukan ke semua kontraktor ("All"), semua kontrak proyek itu ditampilkan.
+        $contractNo = ContractDocument::where('project_id', $siteMemo->project_id)
+            ->when($siteMemo->to_all !== 'Y', fn ($q) => $q->where('vendor_id', $siteMemo->to_company_id))
+            ->orderBy('id')
+            ->pluck('contract_no')
+            ->implode(', ') ?: null;
+
         $docNo = $siteMemo->site_memo_number ?? '-';
         $fileNo = str_replace('/', '-', $docNo); // "/" tidak boleh ada di nama file
 
@@ -41,7 +51,7 @@ class SiteMemoExportController extends BaseModuleController
             'projectName' => $project?->project_name,
             'projectLocation' => null, // kolom lokasi proyek belum diketahui
             'clientName' => $clientName,
-            'contractNo' => null, // Site Memo tidak punya relasi ke dokumen kontrak
+            'contractNo' => $contractNo,
             'fromName' => $account?->account_name,
             'toName' => $toName,
             'salutation' => filled($toName) ? $toName : 'Sir / Madam',
