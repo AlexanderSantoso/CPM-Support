@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/dashboard-detail-tables.js',
+                'resources/js/ProjectGantt.js',
             ],
             refresh: true,
         }),

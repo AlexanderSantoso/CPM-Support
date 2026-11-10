@@ -15,6 +15,7 @@
     },
     "dependencies": {
         "datatables.net-bs5": "^2.3.8",
+        "dhtmlx-gantt": "^10.0.3",
         "jquery": "^3.7.1"
     }
 }
