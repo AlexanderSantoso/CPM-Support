@@ -1,6 +1,7 @@
 @extends('layouts.main')
 @section('head')
-@vite('resources/js/ProjectGantt.js')
+    <link rel="stylesheet" href="{{ asset('dist/external_plugins/dhtmlxgantt.css') }}">
+    <link rel="stylesheet" href="{{ asset('dist/css/datepicker-bs5.min.css') }}">
 @endsection
 @section('content')
     <div class="card">
@@ -30,8 +31,8 @@
             <div id="gantt-zoom-controls" class="d-flex justify-content-end align-items-center gap-2 mb-3">
                 <button type="button" id="gantt-settings-button" data-bs-toggle="modal" data-bs-target="#holidaySettingsModal" aria-label="Public Holiday" title="Public Holiday"> ⚙</button>
                 <span class="me-2">Zoom:</span>
-                <button type="button" class="btn btn-sm btn-link text-decoration-inone text-body" data-gantt-zoom="day">
-                    Days
+                 <button type="button" class="btn btn-sm btn-link text-decoration-none text-body" data-gantt-zoom="day">
+                   Days
                 </button>
                 <button type="button" class="btn btn-sm btn-link text-decoration-none text-body" data-gantt-zoom="week">
                     Weeks
@@ -65,4 +66,7 @@
     </div>
 </div>
     @include('gantt.partials.TaskModal')
+    <script src="{{ asset('dist/external_plugins/dhtmlxgantt.js') }}"></script>
+    <script src="{{ asset('dist/js/datepicker-full.min.js') }}"></script>
+    <script src="{{ asset('dist/js/project-gantt.js') }}"></script>
 @endsection

@@ -1,8 +1,35 @@
-import { gantt } from 'dhtmlx-gantt';
-import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
-import { durationLabel } from './gantt-duration';
-import './datepicker-full.min.js';
-import '../css/datepicker-bs5.min.css';
+const gantt = window.dhtmlxgantt.gantt;
+
+function calendarDate(value) {
+    if (!value) return null;
+
+    const date = value instanceof Date
+        ? value
+        : new Date(String(value).replace(' ', 'T'));
+
+    if (Number.isNaN(date.getTime())) return null;
+
+    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function durationLabel(task) {
+    if (task.type === 'milestone') return '0 days';
+
+    if (task.source_duration !== null && task.source_duration !== undefined) {
+        const importedDuration = Number(task.source_duration);
+        if (Number.isFinite(importedDuration)) {
+            return `${importedDuration} ${importedDuration === 1 ? 'day' : 'days'}`;
+        }
+    }
+
+    const start = calendarDate(task.start_date);
+    const end = calendarDate(task.end_date);
+    const duration = start === null || end === null || end < start
+        ? 0
+        : Math.round((end - start) / 86400000);
+
+    return `${duration} ${duration === 1 ? 'day' : 'days'}`;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('project-gantt');
@@ -21,22 +48,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&': '&amp;','<': '&lt;','>': '&gt;','"': '&quot;',"'": '&#39;',
     })[char]);
 
-    gantt.templates.task_text = (start, end, task) => escapeHtml(task.text);
+    gantt.templates.task_text = (start, end, task) => escapeHtml(task.task_name);
 
     gantt.config.columns = [
         {
-            name: 'text',
+            name: 'task_name',
             label: 'Task Name',
             tree: true,
             width: '*',
             min_width: 250,
             template: (task) => {
-                const text = escapeHtml(task.text);
+                const task_name = escapeHtml(task.task_name);
 
                 if (gantt.calculateTaskLevel(task) === 0 && gantt.hasChild(task.id)) {
-                    return `<strong>${text}</strong>`;
+                    return `<strong>${task_name}</strong>`;
                 } else {
-                    return text;
+                    return task_name;
                 }
             }
         },
@@ -218,7 +245,7 @@ gantt.attachEvent('onBeforeLightbox', (id) => {
     const task = gantt.getTask(id);
 
     modalState.taskId = id;
-    taskNameInput.value = task.text || '';
+    taskNameInput.value = task.task_name || '';
     taskTypeInput.value = task.type || 'task';
 
     if (task.start_date) {
@@ -255,7 +282,7 @@ saveTaskButton.addEventListener('click', async () => {
     if (!startDate || !endDate || endDate < startDate) return;
 
     const taskData = {
-        text: taskNameInput.value.trim(),
+        task_name: taskNameInput.value.trim(),
         type: taskTypeInput.value,
         startDate,
         endDate,
@@ -276,7 +303,7 @@ saveTaskButton.addEventListener('click', async () => {
         if (modalState.taskId !== taskId || !gantt.isTaskExists(taskId)) return;
 
         const task = gantt.getTask(taskId);
-        task.text = taskData.text;
+        task.task_name = taskData.task_name;
         task.type = taskData.type;
         task.start_date = parseInputDate(taskData.startDate);
         task.end_date = parseInputDate(taskData.endDate);
@@ -426,7 +453,7 @@ deleteConfirmElement.addEventListener('hidden.bs.modal', () => {
     parentDatabaseId = parentTask.database_id;
 }
             const payload = {
-                text: task.text,
+                task_name: task.task_name,
                 parent: parentDatabaseId,
                 start_date: task.start_date ? formatDate(task.start_date) : null,
                 end_date: task.end_date ? formatDate(task.end_date) : null,
@@ -543,7 +570,7 @@ deleteConfirmElement.addEventListener('hidden.bs.modal', () => {
                     'X-CSRF-TOKEN': container.dataset.csrfToken,
                 },
                 body: JSON.stringify({
-                    text: task.text,
+                    task_name: task.task_name,
                     start_date: task.start_date ? formatDate(task.start_date) : null,
                     end_date: task.end_date ? formatDate(task.end_date) : null,
                     type: task.type || gantt.config.types.task,
@@ -688,6 +715,7 @@ deleteConfirmElement.addEventListener('hidden.bs.modal', () => {
 
             const importedTasks = tasks.map((task) => {
                 const result = { ...task };
+                result.task_name = task.task_name ?? task.text ?? '';
                 delete result.database_id;
                 delete result.source_duration_state;
                 result.source_duration = task.duration;

@@ -41,7 +41,7 @@ class ProjectGanttController extends BaseModuleController
             ->map(fn (GanttTask $task) => [
                 'id' => $this->idObfuscatorService->encode($task->id),
                 'database_id' => $this->idObfuscatorService->encode($task->id),
-                'text' => $task->text,
+                'task_name' => $task->task_name,
                 'parent' => $task->parent_id ? $this->idObfuscatorService->encode($task->parent_id) : '',
                 'start_date' => $task->start_date,
                 'end_date' => $task->end_date,
@@ -87,7 +87,7 @@ class ProjectGanttController extends BaseModuleController
     public function store(Request $request): JsonResponse
     {
        $request->validate([
-        'text' => 'required|string|max:255',
+        'task_name' => 'required|string|max:255',
         'parent' => 'nullable|string',
         'start_date' => 'nullable|required_with:end_date|date_format:Y-m-d H:i',
         'end_date' => 'nullable|required_with:start_date|date_format:Y-m-d H:i|after_or_equal:start_date',
@@ -111,12 +111,12 @@ class ProjectGanttController extends BaseModuleController
         }
 
         $result = GanttTask::create([
-            'text' => $request->text,
+            'task_name' => $request->task_name,
             'parent_id' => $parentId,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'type' => $request->type,
-            'account_id' => $this->currentContext->accountId(),
+            'sch_master_schedule_id' => 1,
             'project_id' => $this->currentContext->projectId(),
         ]);
 
@@ -129,10 +129,12 @@ class ProjectGanttController extends BaseModuleController
     public function update(Request $request, string $id): JsonResponse
     {
         $request->validate([
-            'text' => ['required', 'string', 'max:255'],
+            'task_name' => ['required', 'string', 'max:255'],
             'start_date' => ['nullable', 'required_with:end_date', 'date_format:Y-m-d H:i'],
             'end_date' => ['nullable', 'required_with:start_date', 'date_format:Y-m-d H:i', 'after_or_equal:start_date'],
             'type' => 'required|in:task,project,milestone',
+            'sch_master_schedule_id' => 1,
+            'project_id' => $this->currentContext->projectId(),
         ]);
 
         $databaseId = $this->idObfuscatorService->decode($id);
@@ -144,7 +146,7 @@ class ProjectGanttController extends BaseModuleController
             ->findOrFail($databaseId);
 
         $task->update([
-            'text' => $request->text,
+            'task_name' => $request->task_name,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'type' => $request->type,
@@ -253,7 +255,7 @@ class ProjectGanttController extends BaseModuleController
             'tasks' => 'required|array|min:1',
             'tasks.*.id' => 'required|string|max:255|distinct:strict',
             'tasks.*.parent' => 'nullable|string|max:255',
-            'tasks.*.text' => 'required|string|max:255',
+            'tasks.*.task_name' => 'required|string|max:255',
             'tasks.*.start_date' => 'nullable|required_with:tasks.*.end_date|date_format:Y-m-d H:i',
             'tasks.*.end_date' => 'nullable|required_with:tasks.*.start_date|date_format:Y-m-d H:i|after_or_equal:tasks.*.start_date',
             'tasks.*.type' => 'required|in:task,project,milestone',
@@ -316,7 +318,7 @@ class ProjectGanttController extends BaseModuleController
             ];
         }
 
-        $taskIds = DB::transaction(function () use ($pending, $pendingLinks, $accountId, $projectId) {
+        $taskIds = DB::transaction(function () use ($pending, $pendingLinks, $projectId) {
             $taskIds = [];
 
             while (count($pending) > 0) {
@@ -330,10 +332,10 @@ class ProjectGanttController extends BaseModuleController
                     }
 
                     $task = GanttTask::create([
-                        'account_id' => $accountId,
                         'project_id' => $projectId,
+                        'sch_master_schedule_id'=> 1,
                         'parent_id' => $parent !== null ? $taskIds[$parent] : null,
-                        'text' => $row['text'],
+                        'task_name' => $row['task_name'],
                         'start_date' => $row['start_date'] ?? null,
                         'end_date' => $row['end_date'] ?? null,
                         'type' => $row['type'],

@@ -13,13 +13,14 @@ class GanttTask extends Model
 {
     protected $table = 'schedule_master_schedule_tasks';
     protected $fillable = [
-        'account_id',
+        'sch_master_schedule_id',
         'project_id',
         'parent_id',
-        'text',
+        'task_name',
         'start_date',
         'end_date',
         'type',
+
     ];
 
     protected $casts = [
