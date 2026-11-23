@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('dist/css/offcanvas-navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('dist/css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('tabler-icons.min.css') }}">
     @yield('head')
   </head>
   <body class="bg-body-tertiary">

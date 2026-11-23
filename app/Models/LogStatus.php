@@ -10,8 +10,11 @@ use App\Modules\CostAndContract\OwnerEstimate\Models\OwnerEstimate;
 use App\Modules\CostAndContract\ValueEngineering\Models\ValueEngineering;
 use App\Modules\CostAndContract\RFP\Models\RFP;
 use App\Modules\CostAndContract\TenderSubmission\Models\TenderSubmission;
+use App\Modules\CostAndContract\TenderAddendum\Models\TenderAddendum;
+use App\Modules\CostAndContract\TenderScoring\Models\TenderScoring;
 use App\Modules\CostAndContract\TenderReport\Models\TenderReport;
 use App\Modules\CostAndContract\TenderProgress\Models\TenderProgress;
+use App\Modules\CostAndContract\BQ\Models\Bq;
 use App\Modules\CostAndContract\ProgressClaim\Models\ProgressClaim;
 use App\Modules\CostAndContract\CertificateOfPayment\Models\CertificateOfPayment;
 use App\Modules\CostAndContract\ChangeOrder\Models\ChangeOrder;
@@ -19,9 +22,28 @@ use App\Modules\CostAndContract\VariationOrder\Models\VariationOrder;
 use App\Modules\CostAndContract\TrackingInvoice\Models\TrackingInvoice;
 use App\Modules\CostAndContract\FinalAccount\Models\FinalAccount;
 use App\Modules\Administration\ClosingDocumentChecklist\Models\ClosingDocumentChecklist;
+use App\Modules\Administration\CertificateOfCompletion\Models\CertificateOfCompletion;
 use App\Modules\Administration\MinutesOfMeeting\Models\MinutesOfMeeting;
 use App\Modules\Administration\SiteInstruction\Models\SiteInstruction;
 use App\Modules\Administration\SiteMemo\Models\SiteMemo;
+use App\Modules\Administration\Rfi\Models\Rfi;
+use App\Modules\Administration\ProjectActivityTracker\Models\ProjectActivityTracker;
+use App\Modules\Compliance\ProjectExecutionPlan\Models\ProjectExecutionPlan;
+use App\Modules\Compliance\NonConformanceReport\Models\NonConformanceReport;
+use App\Modules\Compliance\InspectionTesting\Models\InspectionTesting;
+use App\Modules\Compliance\ProjectAudit\Models\ProjectAudit;
+use App\Modules\Compliance\QualityInspection\Models\QualityInspection;
+use App\Modules\Drawing\DrawingConceptualDesign\Models\DrawingConceptualDesign;
+use App\Modules\Drawing\DrawingSchematicDesign\Models\DrawingSchematicDesign;
+use App\Modules\Drawing\DrawingDesignDevelopment\Models\DrawingDesignDevelopment;
+use App\Modules\Drawing\DrawingForTender\Models\DrawingForTender;
+use App\Modules\Drawing\DrawingForConstruction\Models\DrawingForConstruction;
+use App\Modules\Drawing\PreConstructionDrawing\Models\PreConstructionDrawing;
+use App\Modules\Drawing\ShopDrawings\Models\ShopDrawings;
+use App\Modules\Drawing\AsBuiltDrawings\Models\AsBuiltDrawings;
+use App\Modules\Material\MaterialApproval\Models\MaterialApproval;
+use App\Modules\Material\MaterialApprovalActivity\Models\MaterialApprovalActivity;
+
 
 class LogStatus extends Model
 {
@@ -68,12 +90,27 @@ class LogStatus extends Model
 
     public function administrationSiteMemos(): HasMany
     {
-        return $this->hasMany(SiteMemo::class, 'log_status_id');
+        return $this->hasMany(SiteMemo::class, 'log_status_id');    
+    }
+
+    public function administrationCertificateOfCompletions(): HasMany
+    {
+        return $this->hasMany(CertificateOfCompletion::class, 'log_status_id');
     }
 
     public function administrationClosingDocumentChecklists(): HasMany
     {
         return $this->hasMany(ClosingDocumentChecklist::class, 'log_status_id');
+    }
+
+    public function administrationRfis(): HasMany
+    {
+        return $this->hasMany(Rfi::class, 'log_status_id');
+    }
+
+    public function administrationProjectActivityTrackers(): HasMany
+    {
+        return $this->hasMany(ProjectActivityTracker::class, 'log_status_id');
     }
 
     public function costContractBudgetPlans(): HasMany
@@ -101,6 +138,16 @@ class LogStatus extends Model
         return $this->hasMany(TenderSubmission::class, 'log_status_id');
     }
 
+    public function costContractTenderAddendums(): HasMany
+    {
+        return $this->hasMany(TenderAddendum::class, 'log_status_id');
+    }
+
+    public function costContractTenderScorings(): HasMany
+    {
+        return $this->hasMany(TenderScoring::class, 'log_status_id');
+    }
+
     public function costContractTenderReports(): HasMany
     {
         return $this->hasMany(TenderReport::class, 'log_status_id');
@@ -109,6 +156,11 @@ class LogStatus extends Model
     public function costContractTenderProgress(): HasMany
     {
         return $this->hasMany(TenderProgress::class, 'log_status_id');
+    }
+
+    public function costContractBqs(): HasMany
+    {
+        return $this->hasMany(Bq::class, 'log_status_id');
     }
 
     public function costContractProgressClaims(): HasMany
@@ -139,5 +191,85 @@ class LogStatus extends Model
     public function costContractFinalAccounts(): HasMany
     {
         return $this->hasMany(FinalAccount::class, 'log_status_id');
+    }
+
+    public function materialApprovals(): HasMany
+    {
+        return $this->hasMany(MaterialApproval::class, 'log_status_id');
+    }
+
+    public function approvedMaterialTrackings(): HasMany
+    {
+        return $this->hasMany(MaterialApprovalActivity::class, 'log_status_id');
+    }
+
+    public function materialApprovalTrackings(): HasMany
+    {
+        return $this->hasMany(MaterialApproval::class, 'material_log_status_id');
+    }
+
+    public function complianceProjectExecutionPlans(): HasMany
+    {
+        return $this->hasMany(ProjectExecutionPlan::class, 'log_status_id');
+    }
+
+    public function drawingConceptualDesigns(): HasMany
+    {
+        return $this->hasMany(DrawingConceptualDesign::class, 'log_status_id');
+    }
+  
+    public function drawingSchematicDesigns(): HasMany
+    {
+        return $this->hasMany(DrawingSchematicDesign::class, 'log_status_id');
+    }
+
+    public function drawingDesignDevelopments(): HasMany
+    {
+        return $this->hasMany(DrawingDesignDevelopment::class, 'log_status_id');
+    }
+
+    public function drawingForTenders(): HasMany
+    {
+        return $this->hasMany(DrawingForTender::class, 'log_status_id');
+    }
+
+    public function drawingForConstructions(): HasMany
+    {
+        return $this->hasMany(DrawingForConstruction::class, 'log_status_id');
+    }
+
+    public function preConstructionDrawings(): HasMany
+    {
+        return $this->hasMany(PreConstructionDrawing::class, 'log_status_id');
+    }
+
+    public function shopDrawings(): HasMany
+    {
+        return $this->hasMany(ShopDrawings::class, 'log_status_id');
+    }
+
+    public function drawingAsBuilts(): HasMany
+    {
+        return $this->hasMany(AsBuiltDrawings::class, 'log_status_id');
+    }
+
+    public function nonConformanceReports(): HasMany
+    {
+        return $this->hasMany(NonConformanceReport::class, 'log_status_id');
+    }  
+
+    public function inspectionTestings(): HasMany
+    {
+        return $this->hasMany(InspectionTesting::class, 'log_status_id');
+    }
+
+    public function projectAudit(): HasMany
+    {
+        return $this->hasMany(ProjectAudit::class, 'log_status_id');
+    }
+
+    public function qualityInspections(): HasMany
+    {
+        return $this->hasMany(QualityInspection::class, 'log_status_id');
     }
 }

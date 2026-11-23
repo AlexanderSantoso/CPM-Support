@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Modules\Dashboard\Services\CurrentStatusService;
 use App\Modules\CostAndContract\WorkPackage\Models\WorkPackage;
 use App\Support\CurrentContext;
+use App\Services\Schedule\SCurve\SCurveDropdownService;
+use App\Services\CryptoService;
+use App\Services\Schedule\SCurve\SCurveProgressService;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -16,12 +20,15 @@ class DashboardController extends Controller
         protected CurrentContext $currentContext,
     ) {}
 
-    public function main(CurrentStatusService $currentStatus): View
+    public function main(CurrentStatusService $currentStatus, SCurveDropdownService $sCurveDropdown): View
     {
+        $dashboardDefaults = $sCurveDropdown->dashboardDefaults();
         return view('modules.dashboard.main', [
             'activeDashboardSection' => 'dashboard',
             'initialDashboardData' => $this->payload(),
             'initialCurrentStatusData' => $currentStatus->get(),
+            'contractors' => $sCurveDropdown->contractorDropdown(),
+            'dashboardDefaults' => $dashboardDefaults,
         ]);
     }
     
@@ -29,6 +36,59 @@ class DashboardController extends Controller
     public function data(): JsonResponse
     {
         return response()->json($this->payload());
+    }
+
+
+    public function sCurveWorkPackages(
+        Request $request, SCurveDropdownService $dropdownService
+    ): JsonResponse {
+        $data = $request->validate([
+            'contractor_code' => 'required|string',
+        ]);
+
+        return response()->json($dropdownService->projectWorkPackageDropdown($data['contractor_code']));
+    }
+
+    public function sCurveProgress(
+        Request $request,
+        SCurveProgressService $progressService,
+        SCurveDropdownService $dropdownService,
+        CryptoService $cryptoService
+    ): JsonResponse {
+        $data = $request->validate([
+            'contractor_code' => 'required|string',
+            'work_package_id' => 'required|string',
+        ]);
+
+    $contractor = $dropdownService->validateContractor($data['contractor_code']);
+    $workPackageId = $cryptoService->decryptId($data['work_package_id']);
+
+    $rows = $progressService->getProgress(
+        $this->currentContext->projectId(),
+        $contractor->id,
+        $workPackageId
+    );
+
+    $firstRow = $rows->first();
+    $lastRow = $rows->last();
+
+    $startDate = $firstRow ? \Carbon\Carbon::parse($firstRow->report_start_date) : null;
+    $endDate = $lastRow ? \Carbon\Carbon::parse($lastRow->report_end_date) : null;
+
+    return response()->json([
+        'periods' => $rows->map(fn ($row) =>
+        \Carbon\Carbon::parse($row->report_start_date)->format('d-M-Y')
+        . ' to ' .
+        \Carbon\Carbon::parse($row->report_end_date)->format('d-M-Y')
+    ),
+    'planned' => $rows->pluck('total_planned_progress'),
+    'actual' => $rows->pluck('total_actual_progress'),
+    'duration' => [
+        'start' => $startDate?->format('d-M-Y') ?? '-',
+        'end' => $endDate?->format('d-M-Y') ?? '-',
+        'days' => ($startDate && $endDate) ? $startDate->diffInDays($endDate) + 1 : 0,
+    ],
+    ]);
     }
 
     private function payload(): array

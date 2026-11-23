@@ -5,6 +5,7 @@
     'showChart' => true,
     'hasDataSource' => true,
     'href' => null,
+    'icon' => null,
 ])
 
 <div class="card h-100 border shadow-sm rounded-4"
@@ -48,13 +49,13 @@
         @else
             <div class="d-flex justify-content-center py-4">
                 <span
-                    class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-3"
+                    class="d-inline-flex align-items-center justify-content-center text-primary p-3"
                     role="img"
                     aria-label="{{ $label }}">
-                    <svg width="42" height="42" viewBox="0 0 16 16"
-                        fill="currentColor" aria-hidden="true">
-                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.154.896l-.3-.17c-1.226-.706-2.62.69-1.913 1.915l.17.3a1.464 1.464 0 0 1-.896 2.154l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .896 2.154l-.17.3c-.706 1.226.69 2.62 1.915 1.913l.3-.17a1.464 1.464 0 0 1 2.154.896l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.154-.896l.3.17c1.226.706 2.62-.69 1.913-1.915l-.17-.3a1.464 1.464 0 0 1 .896-2.154l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.896-2.154l.17-.3c.706-1.226-.69-2.62-1.915-1.913l-.3.17a1.464 1.464 0 0 1-2.154-.896zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5"/>
-                    </svg>
+                    @if ($icon)
+                        <i class="{{ $icon }}" style="font-size: 100px;" aria-hidden="true"></i>
+                    @endif
+                    
                 </span>
             </div>
         @endif
@@ -99,6 +100,23 @@
                     chart: {
                         type: 'donut', width: chartSize, height: chartSize + 5,
                         animations: { enabled: false }, toolbar: { show: false },
+                        events: {
+                            dataPointMouseEnter: (event, chartContext, { dataPointIndex }) => {
+                                const status = statuses[dataPointIndex];
+                                const variant = String(status?.bg_color ?? '').replace(/^light-/, '');
+                                const lightColor = ['warning', 'yellow', 'info', 'primary', 'blue'].includes(variant);
+                                const teksColor = lightColor ? '#000000' : '#ffffff';
+
+                                requestAnimationFrame(() => {
+                                    const tooltip = chartElement.querySelector('.apexcharts-tooltip');
+                                    if (!tooltip) return;
+
+                                    [tooltip, ...tooltip.querySelectorAll('*')].forEach((element) => {
+                                        element.style.setProperty('color', teksColor, 'important');
+                                    });
+                                });
+                            },
+                        },
                     },
                     series: hasData ? statuses.map((status) => Number(status.total ?? 0)) : [1],
                     labels: hasData ? statuses.map((status) => status.status) : ['No data'],

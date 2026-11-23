@@ -1,0 +1,44 @@
+#project-gantt[data-readonly] {
+    height: 460px;
+    width: 100%;
+}
+
+#project-gantt[data-readonly] .gantt_task_line {
+    background: #f59b32;
+    border-color: #f59b32;
+}
+
+#project-gantt[data-readonly] .gantt_task_line.dashboard-gantt-parent {
+    background: #7b7b7b;
+    border-color: #7b7b7b;
+}
+
+#project-gantt[data-readonly] .gantt_task_line.gantt_milestone {
+    background: transparent;
+    border: 0;
+}
+
+#project-gantt[data-readonly] .gantt_milestone .gantt_task_content {
+    background: #f59b32;
+    border-color: #f59b32;
+}
+
+#project-gantt[data-readonly] .gantt_task_progress_drag {
+    display: none;
+}
+
+#project-gantt[data-readonly] .gantt_tree_icon.gantt_open,
+#project-gantt[data-readonly] .gantt_tree_icon.gantt_close {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#project-gantt[data-readonly] .dashboard-gantt-today {
+    background: #ff6b6b;
+    width: 2px;
+}
+
+#project-gantt[data-readonly] .dashboard-gantt-today .gantt_marker_content {
+    background: #ff6b6b;
+    color: #fff;
+}

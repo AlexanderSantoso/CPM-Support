@@ -33,6 +33,13 @@ Route::group([], function () {
 
     Route::get('current-status/change-orders', [ChangeOrderController::class, 'data'])
         ->name('current-status.change-orders');
+
     Route::get('approved-variations', [VariationOrderController::class, 'data'])
         ->name('approved-variations');
+
+    Route::get('s-curve/progress', [DashboardController::class, 'sCurveProgress'])
+        ->name('s-curve.progress');
+
+    Route::get('s-curve/work-packages', [DashboardController::class, 'sCurveWorkPackages'])
+        ->name('s-curve.work-packages');
 });

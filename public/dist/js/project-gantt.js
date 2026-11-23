@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('project-gantt');
     if (!container) return;
 
+   
     gantt.config.date_format = '%Y-%m-%d %H:%i';
     gantt.config.grid_width = 820;
     gantt.config.wai_aria_attributes = false;

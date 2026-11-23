@@ -12,6 +12,10 @@ class Project extends Model
 
     protected $table = 'projects';
 
+    protected $casts = [
+        'project_contractor' => 'array',
+    ];
+
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'account_id');
