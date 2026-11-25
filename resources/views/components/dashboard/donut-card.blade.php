@@ -1,0 +1,168 @@
+@props([
+    'label',
+    'total' => null,
+    'statuses' => [],
+    'showChart' => true,
+    'hasDataSource' => true,
+    'href' => null,
+    'icon' => null,
+])
+
+<div class="card h-100 border shadow-sm rounded-4"
+     data-chart-size="180"
+     data-total="{{ $hasDataSource ? ($total ?? '-') : '-' }}"
+     @if ($showChart) data-donut-component @endif>
+    <div class="card-body d-flex flex-column p-3 p-md-4">
+        <h5 class="card-title text-primary text-center text-break fs-6" title="{{ $label }}">
+            {{ $label }}
+        </h5>
+
+        @if (!$showChart)
+            <p class="text-body-secondary text-center mb-3">
+                Total Data: {{ $total ?? '-' }}
+            </p>
+        @endif
+
+        @if ($showChart)
+            <div class="d-flex flex-column flex-grow-1 gap-3">
+                <div class="d-flex justify-content-center w-100"
+                     aria-label="Status {{ $label }}"
+                     data-donut-chart>
+                </div>
+
+                <ul class="list-unstyled d-flex flex-column flex-md-row flex-wrap justify-content-md-center gap-2 gap-md-3 mb-0 small">
+    @foreach ($statuses as $status)
+        <li class="d-flex align-items-center gap-1">
+            <span
+                class="rounded-circle flex-shrink-0"
+                style="width: 8px; height: 8px;"
+                data-donut-swatch>
+            </span>
+
+            <span class="text-break">
+                {{ $status->status }} ({{ $hasDataSource ? ($status->total ?? 0) : '-' }})
+            </span>
+        </li>
+    @endforeach
+</ul>
+            </div>
+        @else
+            <div class="d-flex justify-content-center py-4">
+                <span
+                    class="d-inline-flex align-items-center justify-content-center text-primary p-3"
+                    role="img"
+                    aria-label="{{ $label }}">
+                    @if ($icon)
+                        <i class="{{ $icon }}" style="font-size: 100px;" aria-hidden="true"></i>
+                    @endif
+
+                </span>
+            </div>
+        @endif
+
+        {{ $slot }}
+
+    </div>
+
+    <script type="application/json" data-donut-statuses>
+        @json($statuses)
+    </script>
+</div>
+
+@once
+    <script src="{{ asset('dist/external_plugins/apexcharts-6.7.0.min.js') }}"></script>
+    <script>
+        function renderDonuts() {
+            const theme = getComputedStyle(document.documentElement);
+
+            document.querySelectorAll('[data-donut-component]').forEach((component) => {
+                if (component.offsetWidth === 0 || component.dataset.chartRendered) {
+                    return;
+                }
+                const statuses = JSON.parse(
+                    component.querySelector('[data-donut-statuses]').textContent
+                );
+
+                const colors = statuses.map((status) => {
+                    const variant = String(status.bg_color ?? '').replace(/^light-/, '');
+                    return theme.getPropertyValue(`--bs-${variant}`).trim()
+                        || theme.getPropertyValue('--bs-secondary').trim();
+                });
+
+                component.querySelectorAll('[data-donut-swatch]').forEach((swatch, index) => {
+                    swatch.style.backgroundColor = colors[index];
+                });
+
+                const hasData = statuses.some((status) => (status.total ?? 0) > 0);
+                const chartElement = component.querySelector('[data-donut-chart]');
+                const chartSize = Math.min(Number(component.dataset.chartSize), chartElement.clientWidth);
+                const chart = new ApexCharts(chartElement, {
+                    chart: {
+                        type: 'donut', width: chartSize, height: chartSize + 5,
+                        animations: { enabled: false }, toolbar: { show: false },
+                        events: {
+                            dataPointMouseEnter: (event, chartContext, { dataPointIndex }) => {
+                                const status = statuses[dataPointIndex];
+                                const variant = String(status?.bg_color ?? '').replace(/^light-/, '');
+                                const lightColor = ['warning', 'yellow', 'info', 'primary', 'blue'].includes(variant);
+                                const teksColor = lightColor ? '#000000' : '#ffffff';
+
+                                requestAnimationFrame(() => {
+                                    const tooltip = chartElement.querySelector('.apexcharts-tooltip');
+                                    if (!tooltip) return;
+
+                                    [tooltip, ...tooltip.querySelectorAll('*')].forEach((element) => {
+                                        element.style.setProperty('color', teksColor, 'important');
+                                    });
+                                });
+                            },
+                        },
+                    },
+                    series: hasData ? statuses.map((status) => Number(status.total ?? 0)) : [1],
+                    labels: hasData ? statuses.map((status) => status.status) : ['No data'],
+                    colors: hasData ? colors : ['#e5e7eb'],
+                    dataLabels: { enabled: false },
+                    legend: { show: false },
+                    stroke: { width: 0 },
+                    plotOptions: {
+                        pie: {
+                            expandOnClick: false,
+                            borderRadius: 8,
+                            spacing: 3,
+                            donut: {
+                                size: '68%',
+                                labels: {
+                                    show: true,
+                                    name: {
+                                        fontSize: '12px',
+                                    },
+                                    value: {
+                                        fontSize: '18px',
+                                    },
+                                    total: {
+                                        show: true,
+                                        showAlways: false,
+                                        label: 'Total Data',
+                                        fontSize: '12px',
+                                        formatter: () => component.dataset.total,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    tooltip: { enabled: hasData, y: { formatter: (value) => `${value}` } },
+                });
+
+                component.dataset.chartRendered = 'true';
+                chart.render();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', renderDonuts);
+        document.addEventListener('shown.bs.tab', (event) => {
+            if (event.target.id === 'current-status-tab') {
+                renderDonuts();
+            }
+        });
+    </script>
+@endonce

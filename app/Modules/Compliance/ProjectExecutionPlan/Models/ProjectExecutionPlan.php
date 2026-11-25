@@ -5,6 +5,7 @@ namespace App\Modules\Compliance\ProjectExecutionPlan\Models;
 use App\Models\LogStatus;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,5 +33,15 @@ class ProjectExecutionPlan extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function scopeForCurrentTenant(
+        Builder $query,
+        int $accountId,
+        int $projectId
+    ): Builder {
+        return $query
+            ->where('project_id', $projectId)
+            ->whereHas('project', fn ($project) => $project->where('account_id', $accountId));
     }
 }

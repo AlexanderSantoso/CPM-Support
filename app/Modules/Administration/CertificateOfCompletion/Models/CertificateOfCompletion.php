@@ -9,6 +9,7 @@ use App\Models\LogStatus;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -65,5 +66,16 @@ class CertificateOfCompletion extends Model
                 );
             }
         );
+    }
+
+    public function scopeForCurrentTenant(Builder $query, int $accountId, int $projectId): Builder
+    {
+        return $query
+            ->where('project_id', $projectId)
+            ->whereHas('project', fn ($project) => $project->where('account_id', $accountId))
+            ->whereHas(
+                'contractDocument.workPackage',
+                fn ($workPackages) => $workPackages->forCurrentTenant($accountId, $projectId)
+            );
     }
 }

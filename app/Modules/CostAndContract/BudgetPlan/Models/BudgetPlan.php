@@ -6,6 +6,7 @@ use App\Models\LogStatus;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\WorkPackage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,5 +52,27 @@ class BudgetPlan extends Model
     public function latestActivity(): HasOne
     {
         return $this->hasOne(BudgetPlanActivity::class, 'cc_budget_plan_id')->latestOfMany();
+    }
+
+    public function scopeForCurrentTenant(Builder $query, int $accountId, int $projectId): Builder
+    {
+        return $query
+            ->where($this->qualifyColumn('project_id'), $projectId)
+            ->whereHas('project', fn ($project) => $project->where('account_id', $accountId))
+            ->whereHas('workPackage', fn ($workPackage) => $workPackage->where('project_id', $projectId));
+    }
+
+    public function scopeWithDashboardDetails(Builder $query, int $workPackageId = 0): Builder
+    {
+        return $query
+            ->select($this->qualifyColumns([
+                'id', 'cc_work_package_id', 'log_status_id', 'issued_date', 'budget_estimate', 'updated_at',
+            ]))
+            ->when($workPackageId, fn ($budgetPlans) => $budgetPlans->where('cc_work_package_id', $workPackageId))
+            ->with([
+                'workPackage:id,work_package',
+                'logStatus:id,status,bg_color',
+                'latestActivity.assignee:id,first_name,last_name',
+            ]);
     }
 }

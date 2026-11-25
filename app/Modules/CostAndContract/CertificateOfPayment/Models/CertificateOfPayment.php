@@ -8,6 +8,7 @@ use App\Models\LogStatus;
 use App\Models\ProgressClaim;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,15 +46,26 @@ class CertificateOfPayment extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function scopeForCurrentTenant(
+        Builder $query,
+        int $accountId,
+        int $projectId
+    ): Builder {
+        return $query
+            ->where($this->qualifyColumn('project_id'), $projectId)
+            ->whereHas(
+                'contractDocument.workPackage',
+                fn ($workPackages) => $workPackages->forCurrentTenant($accountId, $projectId)
+            );
+    }
+
     /**
-     * Nomor COP dari generator mentor: 002/COP/KAJIMA/ULUBELU/VIII/2026,
-     * yaitu urutan / COP / inisial perusahaan / inisial proyek / bulan (Romawi) / tahun dari created_at.
+     * Nomor COP berdasarkan urutan, inisial perusahaan/proyek, bulan Romawi, dan tahun.
      */
     protected function copNumber(): Attribute
     {
         return Attribute::make(
             get: function () {
-
                 if (!$this->created_at || !$this->doc_sequence) {
                     return null;
                 }

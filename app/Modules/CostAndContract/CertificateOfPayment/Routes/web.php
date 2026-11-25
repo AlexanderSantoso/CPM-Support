@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(CertificateOfPaymentController::class)->group(function () {
     Route::get('/', 'main')->name('main');
+    Route::get('data', 'data')->name('data');
 });
 
 Route::controller(CertificateOfPaymentExportController::class)->group(function () {
