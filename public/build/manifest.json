@@ -1,0 +1,22 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-Cx_ALULP.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-DMsN-rLE.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/dashboard-detail-tables.js": {
+    "file": "assets/dashboard-detail-tables-mpcs--iE.js",
+    "name": "dashboard-detail-tables",
+    "src": "resources/js/dashboard-detail-tables.js",
+    "isEntry": true,
+    "css": [
+      "assets/dashboard-detail-tables-8j1Evh7b.css"
+    ]
+  }
+}
