@@ -70,6 +70,16 @@
 </div>
 
 @once
+    <style>
+        [data-donut-component] .apexcharts-tooltip {
+            background: #3a3a39 !important;
+            color: #FFFFFF !important;
+        }
+
+        [data-donut-component] .apexcharts-tooltip * {
+            color: #FFFFFF !important;
+        }
+    </style>
     <script src="{{ asset('dist/external_plugins/apexcharts-6.7.0.min.js') }}"></script>
     <script>
         function renderDonuts() {
@@ -100,23 +110,6 @@
                     chart: {
                         type: 'donut', width: chartSize, height: chartSize + 5,
                         animations: { enabled: false }, toolbar: { show: false },
-                        events: {
-                            dataPointMouseEnter: (event, chartContext, { dataPointIndex }) => {
-                                const status = statuses[dataPointIndex];
-                                const variant = String(status?.bg_color ?? '').replace(/^light-/, '');
-                                const lightColor = ['warning', 'yellow', 'info', 'primary', 'blue'].includes(variant);
-                                const teksColor = lightColor ? '#000000' : '#ffffff';
-
-                                requestAnimationFrame(() => {
-                                    const tooltip = chartElement.querySelector('.apexcharts-tooltip');
-                                    if (!tooltip) return;
-
-                                    [tooltip, ...tooltip.querySelectorAll('*')].forEach((element) => {
-                                        element.style.setProperty('color', teksColor, 'important');
-                                    });
-                                });
-                            },
-                        },
                     },
                     series: hasData ? statuses.map((status) => Number(status.total ?? 0)) : [1],
                     labels: hasData ? statuses.map((status) => status.status) : ['No data'],
@@ -150,7 +143,11 @@
                             },
                         },
                     },
-                    tooltip: { enabled: hasData, y: { formatter: (value) => `${value}` } },
+                    tooltip: {
+                        enabled: hasData,
+                        fillSeriesColor: false,
+                        y: { formatter: (value) => `${value}` },
+                    },
                 });
 
                 component.dataset.chartRendered = 'true';
